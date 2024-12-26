@@ -1,3 +1,4 @@
+// webpack.config.js
 import path from 'path';
 import HtmlWebpackPlugin from 'html-webpack-plugin';
 import { fileURLToPath } from 'url';
@@ -13,7 +14,7 @@ export default {
     publicPath: '/'
   },
   resolve: {
-    extensions: ['.tsx', '.ts', '.jsx', '.js'],
+    extensions: ['.tsx', '.ts', '.js', '.jsx', '.scss'],
     alias: {
       '@': path.resolve(__dirname, 'src')
     }
@@ -29,6 +30,27 @@ export default {
             configFile: 'tsconfig.json'
           }
         }
+      },
+      {
+        test: /\.scss$/,
+        exclude: /node_modules/,
+        use: [
+          {
+            loader: 'style-loader'
+          },
+          {
+            loader: 'css-loader',
+            options: {
+              sourceMap: true
+            }
+          },
+          {
+            loader: 'sass-loader',
+            options: {
+              sourceMap: true
+            }
+          }
+        ]
       }
     ]
   },
@@ -38,11 +60,8 @@ export default {
     })
   ],
   devServer: {
-    port: 3000,
     historyApiFallback: true,
-    proxy: [{
-      context: ['/api'],
-      target: 'http://localhost:5000'
-    }]
+    port: 8080,
+    hot: true
   }
 };
