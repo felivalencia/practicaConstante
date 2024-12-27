@@ -1,4 +1,3 @@
-// webpack.config.js
 import path from 'path';
 import HtmlWebpackPlugin from 'html-webpack-plugin';
 import { fileURLToPath } from 'url';
@@ -44,7 +43,7 @@ export default {
   ],
   devServer: {
     historyApiFallback: true,
-    port: 8080,
+    port: 3000,
     hot: true,
     proxy: {
       '/api': {

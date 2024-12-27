@@ -1,49 +1,33 @@
-// src/server/index.ts
 import express from 'express';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
-import dotenv from 'dotenv';
-import authRoutes from './controllers/authController.js';
+import authRoutes from './authController';
 
-// Initialize environment variables
-dotenv.config();
-
-// Initialize Express app
 const app = express();
 
-// CORS configuration
-const corsOptions = {
-  origin: 'http://localhost:8080', // Your client's URL
+// Basic CORS - enable everything for now to debug
+app.use(cors({
+  origin: true,
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'Cookie'],
-  exposedHeaders: ['set-cookie']
-};
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
 
-// Middleware
-app.use(cors(corsOptions));
 app.use(express.json());
 app.use(cookieParser());
 
-// Pre-flight requests
-app.options('*', cors(corsOptions));
+// Debug middleware
+app.use((req, res, next) => {
+  console.log(`${req.method} ${req.url}`, {
+    headers: req.headers,
+    body: req.body,
+  });
+  next();
+});
 
-// Routes
 app.use('/api/auth', authRoutes);
 
-// Test route
-app.get('/api/test', (req, res) => {
-  res.json({ message: 'Server is running!' });
-});
-
-// Error handling middleware
-app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(500).json({ message: 'Something went wrong!' });
-});
-
-// Start server
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+const port = 5000;
+app.listen(port, () => {
+  console.log(`Server running on http://localhost:${port}`);
 });
