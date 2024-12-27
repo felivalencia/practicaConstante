@@ -2,26 +2,31 @@
 import express from 'express';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
-import { fileURLToPath } from 'url';
-import { dirname } from 'path';
 import dotenv from 'dotenv';
-import authRoutes from './authController';
+import authRoutes from './controllers/authController.js';
 
-// Initialize environment variables and dirname
+// Initialize environment variables
 dotenv.config();
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
 
 // Initialize Express app
 const app = express();
 
+// CORS configuration
+const corsOptions = {
+  origin: 'http://localhost:8080', // Your client's URL
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'Cookie'],
+  exposedHeaders: ['set-cookie']
+};
+
 // Middleware
-app.use(cors({
-  origin: process.env.NODE_ENV === 'production' ? 'your-production-domain.com' : 'http://localhost:3000',
-  credentials: true
-}));
+app.use(cors(corsOptions));
 app.use(express.json());
 app.use(cookieParser());
+
+// Pre-flight requests
+app.options('*', cors(corsOptions));
 
 // Routes
 app.use('/api/auth', authRoutes);
@@ -29,6 +34,12 @@ app.use('/api/auth', authRoutes);
 // Test route
 app.get('/api/test', (req, res) => {
   res.json({ message: 'Server is running!' });
+});
+
+// Error handling middleware
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).json({ message: 'Something went wrong!' });
 });
 
 // Start server

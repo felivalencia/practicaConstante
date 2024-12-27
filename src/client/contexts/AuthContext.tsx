@@ -1,4 +1,4 @@
-// src/contexts/AuthContext.tsx
+// src/client/contexts/AuthContext.tsx
 import React, { createContext, useContext, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
@@ -6,6 +6,7 @@ interface User {
   id: string;
   email: string;
   name?: string;
+  role?: string;
 }
 
 interface AuthContextType {
@@ -15,68 +16,73 @@ interface AuthContextType {
   logout: () => Promise<void>;
 }
 
+const API_URL = 'http://localhost:5000/api/auth';
+
+const defaultHeaders = {
+  'Content-Type': 'application/json',
+  'Accept': 'application/json'
+};
+
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const navigate = useNavigate();
 
+  const register = async (email: string, password: string, name: string) => {
+    try {
+      const response = await fetch(`${API_URL}/register`, {
+        method: 'POST',
+        headers: defaultHeaders,
+        credentials: 'include',
+        body: JSON.stringify({
+          email,
+          password,
+          name,
+          role: 'user'
+        })
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.message || 'Registration failed');
+      }
+
+      const data = await response.json();
+      setUser(data.user);
+      navigate('/dashboard');
+    } catch (error) {
+      throw new Error(error instanceof Error ? error.message : 'Registration failed');
+    }
+  };
+
   const login = async (email: string, password: string) => {
     try {
-      const response = await fetch('/api/auth/login', {
+      const response = await fetch(`${API_URL}/login`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: defaultHeaders,
         credentials: 'include',
         body: JSON.stringify({ email, password })
       });
 
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Login failed');
+        const data = await response.json();
+        throw new Error(data.message || 'Login failed');
       }
 
       const data = await response.json();
       setUser(data.user);
       navigate('/dashboard');
     } catch (error) {
-      if (error instanceof Error) {
-        throw new Error(error.message);
-      } else {
-        throw new Error('An unexpected error occurred during login');
-      }
-    }
-  };
-
-  const register = async (email: string, password: string, name: string) => {
-    try {
-      const response = await fetch('/api/auth/register', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({ email, password, name })
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Registration failed');
-      }
-
-      const data = await response.json();
-      setUser(data.user);
-      navigate('/dashboard');
-    } catch (error) {
-      if (error instanceof Error) {
-        throw new Error(error.message);
-      } else {
-        throw new Error('An unexpected error occurred during registration');
-      }
+      throw new Error(error instanceof Error ? error.message : 'Login failed');
     }
   };
 
   const logout = async () => {
     try {
-      const response = await fetch('/api/auth/logout', {
+      const response = await fetch(`${API_URL}/logout`, {
         method: 'POST',
+        headers: defaultHeaders,
         credentials: 'include'
       });
 
@@ -88,20 +94,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       navigate('/auth');
     } catch (error) {
       console.error('Logout error:', error);
-      // Still clear the user state even if the logout request fails
       setUser(null);
       navigate('/auth');
     }
   };
 
-  const value = {
-    user,
-    login,
-    register,
-    logout
-  };
-
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+  return (
+    <AuthContext.Provider value={{ user, login, register, logout }}>
+      {children}
+    </AuthContext.Provider>
+  );
 };
 
 export const useAuth = () => {

@@ -33,24 +33,7 @@ export default {
       },
       {
         test: /\.scss$/,
-        exclude: /node_modules/,
-        use: [
-          {
-            loader: 'style-loader'
-          },
-          {
-            loader: 'css-loader',
-            options: {
-              sourceMap: true
-            }
-          },
-          {
-            loader: 'sass-loader',
-            options: {
-              sourceMap: true
-            }
-          }
-        ]
+        use: ['style-loader', 'css-loader', 'sass-loader']
       }
     ]
   },
@@ -62,6 +45,14 @@ export default {
   devServer: {
     historyApiFallback: true,
     port: 8080,
-    hot: true
+    hot: true,
+    proxy: {
+      '/api': {
+        target: 'http://localhost:5000',
+        secure: false,
+        changeOrigin: true,
+        withCredentials: true
+      }
+    }
   }
 };
