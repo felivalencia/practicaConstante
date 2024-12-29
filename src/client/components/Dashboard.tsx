@@ -2,7 +2,7 @@ import React from 'react';
 import { useAuth } from '../contexts/AuthContext';
 
 const Dashboard: React.FC = () => {
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
 
   return (
     <div className="dashboard">
@@ -14,12 +14,7 @@ const Dashboard: React.FC = () => {
             </div>
             <div className="flex items-center">
               <span className="mr-4">Welcome, {user?.name}</span>
-              <button
-                onClick={logout}
-                className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700"
-              >
-                Logout
-              </button>
+
             </div>
           </div>
         </div>

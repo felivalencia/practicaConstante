@@ -2,143 +2,123 @@
 import React, { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 
-type AuthMode = 'login' | 'register' | 'forgotPassword';
-
-interface AuthState {
-  email: string;
-  password: string;
-  name?: string;
-}
-
-const AuthForm: React.FC = () => {
-  const [mode, setMode] = useState<AuthMode>('login');
-  const [formState, setFormState] = useState<AuthState>({
+const AuthForm = () => {
+  const [isLogin, setIsLogin] = useState(true);
+  const [formData, setFormData] = useState({
     email: '',
     password: '',
     name: ''
   });
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [message, setMessage] = useState<string | null>(null);
+  const [error, setError] = useState('');
   const { login, register } = useAuth();
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormState(prev => ({
-      ...prev,
-      [e.target.name]: e.target.value
-    }));
-    setError(null);
-    setMessage(null);
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
-    setError(null);
-    setMessage(null);
+    setError('');
+
+    // Basic validation
+    if (!isLogin && !formData.name.trim()) {
+      setError('Name is required');
+      return;
+    }
+
+    if (!formData.email.trim()) {
+      setError('Email is required');
+      return;
+    }
+
+    if (!formData.password.trim()) {
+      setError('Password is required');
+      return;
+    }
 
     try {
-      if (mode === 'login') {
-        await login(formState.email, formState.password);
-      } else if (mode === 'register') {
-        await register(formState.email, formState.password, formState.name || '');
+      if (isLogin) {
+        await login(formData.email, formData.password);
+      } else {
+        await register(
+          formData.email.trim(),
+          formData.password,
+          formData.name.trim()
+        );
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'An unexpected error occurred');
-    } finally {
-      setLoading(false);
+      setError(err instanceof Error ? err.message : 'An error occurred');
     }
+  };
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
   };
 
   return (
     <div className="auth-container">
       <div className="auth-card">
-        <div className="auth-form">
-          <div className="auth-header">
-            <h1>
-              {mode === 'login' ? 'Welcome Back' : 
-               mode === 'register' ? 'Create Account' : 
-               'Reset Password'}
-            </h1>
-            <p>
-              {mode === 'login' ? "Don't have an account? " : 
-               mode === 'register' ? 'Already have an account? ' :
-               'Remember your password? '}
-              <button
-                type="button"
-                onClick={() => setMode(mode === 'login' ? 'register' : 'login')}
-              >
-                {mode === 'login' ? 'Sign up' : 'Log in'}
-              </button>
-            </p>
-          </div>
-
-          <form onSubmit={handleSubmit} className="form-group">
-            {mode === 'register' && (
-              <div>
-                <label htmlFor="name">Name</label>
-                <input
-                  id="name"
-                  name="name"
-                  type="text"
-                  required
-                  value={formState.name}
-                  onChange={handleInputChange}
-                  placeholder="John Doe"
-                />
-              </div>
-            )}
-
+        <h2 className="text-2xl font-bold mb-4">
+          {isLogin ? 'Sign In' : 'Create Account'}
+        </h2>
+        
+        <form onSubmit={handleSubmit}>
+          {!isLogin && (
             <div>
-              <label htmlFor="email">Email</label>
+              <label htmlFor="name">Name</label>
               <input
-                id="email"
-                name="email"
-                type="email"
-                required
-                value={formState.email}
-                onChange={handleInputChange}
-                placeholder="you@example.com"
+                id="name"
+                name="name"
+                type="text"
+                value={formData.name}
+                onChange={handleChange}
+                className="w-full p-2 border rounded"
               />
             </div>
+          )}
 
-            {mode !== 'forgotPassword' && (
-              <div>
-                <label htmlFor="password">Password</label>
-                <input
-                  id="password"
-                  name="password"
-                  type="password"
-                  required
-                  value={formState.password}
-                  onChange={handleInputChange}
-                  placeholder="••••••••"
-                />
-              </div>
-            )}
+          <div>
+            <label htmlFor="email">Email</label>
+            <input
+              id="email"
+              name="email"
+              type="email"
+              value={formData.email}
+              onChange={handleChange}
+              className="w-full p-2 border rounded"
+            />
+          </div>
 
-            {error && (
-              <div className="error-message">
-                {error}
-              </div>
-            )}
+          <div>
+            <label htmlFor="password">Password</label>
+            <input
+              id="password"
+              name="password"
+              type="password"
+              value={formData.password}
+              onChange={handleChange}
+              className="w-full p-2 border rounded"
+            />
+          </div>
 
-            {message && (
-              <div className="success-message">
-                {message}
-              </div>
-            )}
+          {error && (
+            <div className="text-red-500 mt-2">{error}</div>
+          )}
 
-            <button
-              type="submit"
-              disabled={loading}
-              className="submit-button"
-            >
-              {loading ? 'Processing...' : mode === 'login' ? 'Sign in' : 
-               mode === 'register' ? 'Create account' : 'Reset password'}
-            </button>
-          </form>
-        </div>
+          <button
+            type="submit"
+            className="w-full bg-blue-500 text-white p-2 rounded mt-4"
+          >
+            {isLogin ? 'Sign In' : 'Create Account'}
+          </button>
+        </form>
+
+        <button
+          onClick={() => setIsLogin(!isLogin)}
+          className="w-full text-blue-500 mt-4"
+        >
+          {isLogin ? 'Need an account? Sign up' : 'Already have an account? Sign in'}
+        </button>
       </div>
     </div>
   );

@@ -5,9 +5,7 @@
   "scripts": {
     "start": "concurrently \"npm run server\" \"npm run client\"",
     "server": "tsx watch src/server/index.ts",
-    "client": "webpack serve --mode development",
-    "build": "webpack --mode production",
-    "dev": "concurrently \"npm run server\" \"npm run client\""
+    "client": "webpack serve --mode development"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.47.10",
