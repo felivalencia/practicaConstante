@@ -1,3 +1,4 @@
+// webpack.config.js
 import path from 'path';
 import HtmlWebpackPlugin from 'html-webpack-plugin';
 import { fileURLToPath } from 'url';
@@ -23,16 +24,15 @@ export default {
       {
         test: /\.(ts|tsx)$/,
         exclude: /node_modules/,
-        use: {
-          loader: 'ts-loader',
-          options: {
-            configFile: 'tsconfig.json'
-          }
-        }
+        use: 'ts-loader'
       },
       {
         test: /\.scss$/,
-        use: ['style-loader', 'css-loader', 'sass-loader']
+        use: [
+          'style-loader',
+          'css-loader',
+          'sass-loader'
+        ]
       }
     ]
   },
@@ -49,14 +49,8 @@ export default {
       '/api': {
         target: 'http://localhost:5001',
         secure: false,
-        changeOrigin: true,
-        logLevel: 'debug'  // Add this to see proxy logs
+        changeOrigin: true
       }
-    },
-    headers: {
-      "Access-Control-Allow-Origin": "*",
-      "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, PATCH, OPTIONS",
-      "Access-Control-Allow-Headers": "X-Requested-With, content-type, Authorization"
     }
   }
 };

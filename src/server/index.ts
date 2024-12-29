@@ -3,42 +3,33 @@ import express from 'express';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import authRoutes from './authController';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 const app = express();
+const port = process.env.PORT || 5001; // Changed to 5001
+const clientUrl = process.env.CLIENT_URL || 'http://localhost:3000';
 
-// Explicit CORS configuration
 app.use(cors({
-  origin: 'http://localhost:3000',
+  origin: clientUrl,
+  credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-  credentials: true
+  allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
-// Middlewares
 app.use(express.json());
 app.use(cookieParser());
 
-
+// Debug middleware
 app.use((req, res, next) => {
-  console.log('Incoming request:', {
-    method: req.method,
-    url: req.url,
-    headers: req.headers,
-    body: req.method !== 'GET' ? req.body : undefined
-  });
+  console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
+  console.log('Body:', req.method !== 'GET' ? req.body : undefined);
   next();
 });
 
-// Routes
 app.use('/api/auth', authRoutes);
 
-// Error handler
-app.use((err: Error, req: express.Request, res: express.Response, next: express.NextFunction) => {
-  console.error('Error:', err);
-  res.status(500).json({ error: err.message });
-});
-
-const PORT = 5001;
-app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
+app.listen(port, () => {
+  console.log(`Server running on http://localhost:${port}`);
 });

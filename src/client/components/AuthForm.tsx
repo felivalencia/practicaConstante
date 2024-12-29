@@ -2,120 +2,82 @@
 import React, { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 
-const AuthForm = () => {
+const AuthForm: React.FC = () => {
   const [isLogin, setIsLogin] = useState(true);
   const [formData, setFormData] = useState({
     email: '',
     password: '',
     name: ''
   });
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const { login, register } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setLoading(true);
     setError('');
-
-    // Basic validation
-    if (!isLogin && !formData.name.trim()) {
-      setError('Name is required');
-      return;
-    }
-
-    if (!formData.email.trim()) {
-      setError('Email is required');
-      return;
-    }
-
-    if (!formData.password.trim()) {
-      setError('Password is required');
-      return;
-    }
 
     try {
       if (isLogin) {
         await login(formData.email, formData.password);
       } else {
-        await register(
-          formData.email.trim(),
-          formData.password,
-          formData.name.trim()
-        );
+        await register(formData.email, formData.password, formData.name);
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
+    } finally {
+      setLoading(false);
     }
-  };
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
   };
 
   return (
     <div className="auth-container">
       <div className="auth-card">
-        <h2 className="text-2xl font-bold mb-4">
-          {isLogin ? 'Sign In' : 'Create Account'}
-        </h2>
-        
+        <h2>{isLogin ? 'Sign In' : 'Create Account'}</h2>
         <form onSubmit={handleSubmit}>
           {!isLogin && (
             <div>
               <label htmlFor="name">Name</label>
               <input
                 id="name"
-                name="name"
                 type="text"
                 value={formData.name}
-                onChange={handleChange}
-                className="w-full p-2 border rounded"
+                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                className="form-input"
               />
             </div>
           )}
-
           <div>
             <label htmlFor="email">Email</label>
             <input
               id="email"
-              name="email"
               type="email"
               value={formData.email}
-              onChange={handleChange}
-              className="w-full p-2 border rounded"
+              onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+              className="form-input"
+              required
             />
           </div>
-
           <div>
             <label htmlFor="password">Password</label>
             <input
               id="password"
-              name="password"
               type="password"
               value={formData.password}
-              onChange={handleChange}
-              className="w-full p-2 border rounded"
+              onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+              className="form-input"
+              required
             />
           </div>
-
-          {error && (
-            <div className="text-red-500 mt-2">{error}</div>
-          )}
-
-          <button
-            type="submit"
-            className="w-full bg-blue-500 text-white p-2 rounded mt-4"
-          >
-            {isLogin ? 'Sign In' : 'Create Account'}
+          {error && <div className="error-message">{error}</div>}
+          <button type="submit" disabled={loading} className="submit-button">
+            {loading ? 'Processing...' : isLogin ? 'Sign In' : 'Create Account'}
           </button>
         </form>
-
         <button
           onClick={() => setIsLogin(!isLogin)}
-          className="w-full text-blue-500 mt-4"
+          className="switch-mode-button"
         >
           {isLogin ? 'Need an account? Sign up' : 'Already have an account? Sign in'}
         </button>

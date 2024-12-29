@@ -4,7 +4,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { AuthProvider } from './contexts/AuthContext';
 import AuthForm from './components/AuthForm';
 import Dashboard from './components/Dashboard';
-import './styles.scss'; // Add this import
+import './styles.scss';
 
 const App: React.FC = () => {
   return (

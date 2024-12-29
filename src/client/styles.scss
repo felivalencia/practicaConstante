@@ -1,88 +1,71 @@
 // src/client/styles.scss
 .auth-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
   min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f3f4f6;
   padding: 1rem;
-  background-color: #f5f5f5;
 }
 
 .auth-card {
-  width: 100%;
   max-width: 400px;
+  width: 100%;
   padding: 2rem;
   background: white;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  border-radius: 0.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
-.auth-header {
-  text-align: center;
-  margin-bottom: 2rem;
-
-  h1 {
-    margin-bottom: 0.5rem;
-    font-size: 1.5rem;
-  }
+.form-input {
+  width: 100%;
+  padding: 0.75rem;
+  margin-bottom: 1rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.375rem;
+  outline: none;
 }
 
-.form-group {
-  div {
-    margin-bottom: 1rem;
-  }
-
-  label {
-    display: block;
-    margin-bottom: 0.5rem;
-    font-weight: 500;
-  }
-
-  input {
-    width: 100%;
-    padding: 0.75rem;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-
-    &:focus {
-      outline: none;
-      border-color: #4a90e2;
-    }
-  }
+.form-input:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
 }
 
 .submit-button {
   width: 100%;
   padding: 0.75rem;
-  background: #4a90e2;
+  background-color: #3b82f6;
   color: white;
   border: none;
-  border-radius: 4px;
-  cursor: pointer;
+  border-radius: 0.375rem;
   font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
 
-  &:disabled {
-    opacity: 0.7;
-    cursor: not-allowed;
-  }
+.submit-button:hover {
+  background-color: #2563eb;
+}
 
-  &:hover:not(:disabled) {
-    background: #357abd;
-  }
+.submit-button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
 }
 
 .error-message {
-  color: #dc3545;
-  margin: 1rem 0;
+  color: #dc2626;
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
   padding: 0.5rem;
-  background: #fce8e8;
-  border-radius: 4px;
+  background-color: #fee2e2;
+  border-radius: 0.375rem;
 }
 
 .success-message {
-  color: #28a745;
-  margin: 1rem 0;
+  color: #059669;
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
   padding: 0.5rem;
-  background: #e8f5e9;
-  border-radius: 4px;
+  background-color: #d1fae5;
+  border-radius: 0.375rem;
 }
